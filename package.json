@@ -4,18 +4,26 @@
   "description": "Discord bot using Markov chain to create funny messages",
   "private": true,
   "type": "module",
+  "pnpm": {
+    "onlyBuildDependencies": [
+      "esbuild"
+    ]
+  },
   "scripts": {
     "test": "vitest run",
     "coverage": "vitest run --coverage",
     "doc": "pnpm exec typedoc --options tsdoc-conf.json",
     "pretty": "pnpm exec prettier . --write",
     "pretty-check": "pnpm exec prettier . --check",
-    "eslint-check": "pnpm exec eslint"
+    "eslint-check": "pnpm exec eslint",
+    "dev": "pnpm exec tsx watch src/index.ts",
+    "build": "pnpm exec tsc",
+    "prod": "node dist/index.js"
   },
   "keywords": [],
   "author": "Riley",
   "license": "CC0",
-  "packageManager": "pnpm@10.31.0",
+  "packageManager": "pnpm@11.1.2",
   "devDependencies": {
     "@types/eslint": "^9.6.1",
     "@typescript-eslint/eslint-plugin": "^8.58.0",
@@ -26,7 +34,6 @@
     "jiti": "^2.6.1",
     "prettier": "^3.8.1",
     "ts-loader": "^9.5.7",
-    "tsc": "^2.0.4",
     "tsx": "^4.21.0",
     "typedoc": "^0.28.19",
     "typescript": "^6.0.2",
