@@ -1,62 +1,61 @@
-import { connect, QueryFilter, UpdateQuery } from "mongoose";
-
-import { ModelDoc, ModelOf, ModelRegistry } from "./models/modelRegistry";
+import { connect } from "mongoose";
+import type { Model, QueryFilter, UpdateQuery } from "mongoose";
 
 export class DatabaseService {
   public async openDatabase(uri: string) {
     await connect(uri);
   }
 
-  public async create<N extends keyof ModelRegistry>(
-    model: ModelOf<N>,
-    data: Partial<ModelDoc<N>>,
-  ): Promise<ModelDoc<N>> {
+  public async create<TDoc>(
+    model: Model<TDoc>,
+    data: Partial<TDoc>,
+  ): Promise<TDoc> {
     const document = new model({ ...data });
     const savedDocument = await document.save();
-    return savedDocument.toObject() as ModelDoc<N>;
+    return savedDocument.toObject() as TDoc;
   }
 
-  public async getOne<N extends keyof ModelRegistry>(
-    model: ModelOf<N>,
-    query: QueryFilter<ModelDoc<N>>,
-  ): Promise<ModelDoc<N> | null> {
-    return model.findOne(query).lean<ModelDoc<N>>().exec();
+  public async getOne<TDoc>(
+    model: Model<TDoc>,
+    query: QueryFilter<TDoc>,
+  ): Promise<TDoc | null> {
+    return model.findOne(query).lean<TDoc>().exec();
   }
 
-  public async getAll<N extends keyof ModelRegistry>(
-    model: ModelOf<N>,
-    query?: QueryFilter<ModelDoc<N>>,
-  ): Promise<ModelDoc<N>[]> {
-    return model.find(query).lean<ModelDoc<N>[]>().exec();
+  public async getAll<TDoc>(
+    model: Model<TDoc>,
+    query: QueryFilter<TDoc> = {},
+  ): Promise<TDoc[]> {
+    return model.find(query).lean<TDoc[]>().exec();
   }
 
-  public async updateOne<N extends keyof ModelRegistry>(
-    model: ModelOf<N>,
-    query: QueryFilter<ModelDoc<N>>,
-    updates: UpdateQuery<ModelDoc<N>>,
-  ): Promise<ModelDoc<N> | null> {
+  public async updateOne<TDoc>(
+    model: Model<TDoc>,
+    query: QueryFilter<TDoc>,
+    updates: UpdateQuery<TDoc>,
+  ): Promise<TDoc | null> {
     return model
       .findOneAndUpdate(query, updates, { new: true })
-      .lean<ModelDoc<N>>()
+      .lean<TDoc>()
       .exec();
   }
 
-  public async remove<N extends keyof ModelRegistry>(
-    model: ModelOf<N>,
-    query: QueryFilter<ModelDoc<N>>,
+  public async remove<TDoc>(
+    model: Model<TDoc>,
+    query: QueryFilter<TDoc>,
   ): Promise<boolean> {
     const deleteResponse = await model.deleteOne(query).exec();
     return deleteResponse.deletedCount > 0;
   }
 
-  public async upsert<N extends keyof ModelRegistry>(
-    model: ModelOf<N>,
-    query: QueryFilter<ModelDoc<N>>,
-    updates: UpdateQuery<ModelDoc<N>>,
-  ): Promise<ModelDoc<N> | null> {
+  public async upsert<TDoc>(
+    model: Model<TDoc>,
+    query: QueryFilter<TDoc>,
+    updates: UpdateQuery<TDoc>,
+  ): Promise<TDoc | null> {
     return model
       .findOneAndUpdate(query, updates, { new: true, upsert: true })
-      .lean<ModelDoc<N>>()
+      .lean<TDoc>()
       .exec();
   }
 }

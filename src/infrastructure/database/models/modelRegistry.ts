@@ -1,9 +1,7 @@
-import { Model } from "mongoose";
-import { MessageDocument } from "./messageModel";
+import { MessageModel } from "./messageModel";
+import { GuildConfigModel } from "./guildConfigModel";
 
-export interface ModelRegistry {
-  Message: MessageDocument;
-}
-
-export type ModelDoc<N extends keyof ModelRegistry> = ModelRegistry[N];
-export type ModelOf<N extends keyof ModelRegistry> = Model<ModelRegistry[N]>;
+export const models = {
+  Message: MessageModel,
+  GuildConfig: GuildConfigModel,
+} as const;
