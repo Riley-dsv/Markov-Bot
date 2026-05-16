@@ -1,18 +1,20 @@
 import { Client } from "discord.js";
+import { createGuildCreateHandler } from "./adapter/discord/eventHandlers/guildCreateHandler";
+import { createMessageCreateHandler } from "./adapter/discord/eventHandlers/messageCreateHandler";
+import { createReadyHandler } from "./adapter/discord/eventHandlers/readyHandler";
+import { FirstJoinConfigGeneration } from "./application/use-cases/firstJoinConfigGeneration";
 import { LearnFromMessage } from "./application/use-cases/learnFromMessage";
 import { DatabaseService } from "./infrastructure/database/databaseService";
-import { MongoMessageRepository } from "./infrastructure/repositories/MongoMessageRepository";
-import { createMessageCreateHandler } from "./adapter/discord/eventHandlers/messageCreateHandler";
-import { configDotenv } from "dotenv";
-import { createGuildCreateHandler } from "./adapter/discord/eventHandlers/guildCreateHandler";
 import { MongoGuildConfigRepository } from "./infrastructure/repositories/MongoGuildConfigRepository";
-import { FirstJoinConfigGeneration } from "./application/use-cases/firstJoinConfigGeneration";
-
-configDotenv();
+import { MongoMessageRepository } from "./infrastructure/repositories/MongoMessageRepository";
+import { EnvConfig } from "./infrastructure/config/EnvConfig";
+import { loadEnvConfig } from "./infrastructure/config/EnvLoader";
 
 async function main(): Promise<void> {
+  const envConfig: EnvConfig = loadEnvConfig();
+
   const databaseService = new DatabaseService();
-  await databaseService.openDatabase(process.env.MONGO_URI ?? "");
+  await databaseService.openDatabase(envConfig.mongoURI);
 
   const messageRepository = new MongoMessageRepository(databaseService);
   const learnFromMessage = new LearnFromMessage(messageRepository);
@@ -29,7 +31,7 @@ async function main(): Promise<void> {
   client.on("messageCreate", createMessageCreateHandler(learnFromMessage));
   client.on("guildCreate", createGuildCreateHandler(firstJoinConfigGeneration));
 
-  await client.login(process.env.TOKEN);
+  await client.login(envConfig.token);
 }
 
 void (await main());
